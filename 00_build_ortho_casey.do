@@ -2,14 +2,16 @@ set more off
 macro drop _all 
 
 
-global ortho /users/jdaniell/ortho
-global core /dcs01/igm/segevlab/data/usrds2020/core_hosp_tx
-global inc /dcs01/igm/segevlab/data/usrds2020/claims/inc
-global rev /dcs01/igm/segevlab/data/usrds2020/claims/rev
-global det /dcs01/igm/segevlab/data/usrds2020/claims/det
-global ps /dcs01/igm/segevlab/data/usrds2020/claims/ps
+global ortho /gpfs/home/baes03/tkrthr
+global core /gpfs/home/baes03/srtr/usrds/stata/core2023/esrd
+global inc /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/in
+global rev /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/in
+global det /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/in
+global ps /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/ps
 
 global pro "mjr_wmcc mjr_womcc tha tka"
+
+global start_dt = td(01jan2000)
 
 capture log close //closing all logs 
 local cdat: di %tdCCYYNNDD date(c(current_date),"DMY") // converting current date as a string to numberic and storing it in a macro 
@@ -26,18 +28,18 @@ log using $ortho/motter_build_ortho_`cdat'.log, replace
 clear
 forvalues y=2008/2018 {  
    clear 
-      if inrange(`y', 2008, 2011) {  
+      /* if inrange(`y', 2008, 2011) {  
       foreach seq in a b c d e f g h i j k l m n o p q r s t w x y z {
             capture append using $inc/inc`y'`seq'
             if _rc==0 di "file DET`y'`seq' loading complete"
       }
    }  
    
-   else if inrange(`y',2012,2018) {
+   else if inrange(`y',2012,2018) { */
       capture append using $inc/ip_clm_`y'
          if _rc==0 di "file INC`y' loading complete"
          
-   }
+   /* } */
 
    tempfile clm_inc`y'
 
@@ -71,21 +73,22 @@ save $ortho/inc_mjr_ortho_v1, replace
 
 *II.PULL CLAIMS: ICD-9/10 codes -- detailed 
 clear
-forvalues y=2008/2017 {  
+forvalues y=2008/2018 {   
+/* forvalues y=2008/2017 {   */
    clear 
-      if inrange(`y',2008,2011) {
+      /* if inrange(`y',2008,2011) {
          foreach seq in a b c d e f g h i j k l m n o p q r s t w x y z {
             capture append using $rev/rev`y'`seq'
             if _rc==0 di "file DET`y'`seq' loading complete"
       }
    }     
     
-   else if inrange(`y',2012,2017) {
+   else if inrange(`y',2012,2017) { */
       foreach src in ip {
          capture append using $rev/`src'_det_`y'
                if _rc==0 di "file DET`y'`seq' loading complete"
       }
-   }
+   /* } */
 
    tempfile clm_det`y'
 
@@ -182,7 +185,8 @@ forvalues y=2008/2017 {
 
 *APPEND 
 clear
-forvalue y=2008/2017 {
+/* forvalue y=2008/2017 { */
+forvalue y=2008/2018 {
    capture append using `clm_det`y''
    if _rc==0 di "file `y' loading complete"
 }
@@ -193,19 +197,19 @@ save $ortho/rev_mjr_ortho, replace
 clear
 forvalues y=2008/2018 {  
    clear 
-      if inrange(`y',2008,2011) {
+      /* if inrange(`y',2008,2011) {
          foreach seq in a b c d e f g h i j k l m n o p q r s t w x y z {
             capture append using $det/det`y'`seq'
             if _rc==0 di "file DET`y'`seq' loading complete"
       }
    }     
     
-   else if inrange(`y',2012,2018) {
+   else if inrange(`y',2012,2018) { */
       foreach src in ip {
          capture append using $det/`src'_dxp_`y'
                if _rc==0 di "file DET`y'`seq' loading complete"
       }
-   }
+   /* } */
 
    tempfile clm_det`y'
 
@@ -310,7 +314,7 @@ save $ortho/inc_mjr_ortho_v2, replace
 
 
 *IV.PULL CLAIMS: PS 
-clear
+/* clear
 forvalues y=2008/2011 {  
    clear 
       if inrange(`y',2008,2011) {
@@ -412,23 +416,24 @@ forvalues y=2008/2011 {
    
    save `clm_ps`y'', replace     
 
-}
+} */
 
 *IV.PULL CLAIMS: PS 
 clear
-forvalues y=2012/2018 {  
+forvalues y=2008/2018 {  
+/* forvalues y=2012/2018 {   */
    clear 
-      if `y'==2012 {
+      /* if `y'==2012 {
          capture append using $ps/ps`y'
                if _rc==0 di "file PS`y'`seq' loading complete"
    }
     
-   else if inrange(`y',2013,2018) {
+   else if inrange(`y',2013,2018) { */
       foreach src in clm dx line {
          capture append using $ps/ps_`src'_`y'
                if _rc==0 di "file PS`y'`seq' loading complete"
       }
-   }
+   /* } */
 
 
    tempfile clm_ps`y'
@@ -589,7 +594,7 @@ compare tdate clm_from
 drop if tdate<clm_from & _merge==3 
 
 drop _merge 
-keep if first_se>=td(01jan2000)
+keep if first_se>=$start_dt
 
 save $ortho/inc_rev_mjr_ortho_cut_v2, replace 
 
@@ -608,7 +613,7 @@ compare tdate clm_from
 drop if tdate<clm_from & _merge==3 
 
 drop _merge 
-keep if first_se>=td(01jan2000)
+keep if first_se>=$start_dt
 
 save $ortho/ps_mjr_ortho_cut_v2, replace 
 
@@ -697,7 +702,7 @@ save $ortho/elig_ortho_casey, replace
 use $core/patients, clear 
 keep inc_age first_se usrds_id 
 keep if inc_age>=18 
-keep if first_se>=td(01jan2000)
+keep if first_se>=$start_dt
 joinby usrds_id using $ortho/elig_ortho_casey
 keep if inrange(first_se, begdate_new, enddate_new)
 joinby usrds_id using $ortho/ortho_claims_clean, unmatched(master)
