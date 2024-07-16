@@ -174,6 +174,9 @@ forvalues y=2008/2018 {
 
    keep usrds_id clm_from hcfasaf seq_keyc tha tka 
    keep if tha==1 | tka==1 
+
+   if _N==0 continue
+
    collapse (max) tha tka, by(usrds_id clm_from hcfasaf seq_keyc) fast
    rename clm_from clm_from_`y'
 
