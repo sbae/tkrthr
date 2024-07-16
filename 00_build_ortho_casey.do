@@ -28,7 +28,7 @@ log using $ortho/motter_build_ortho_`cdat'.log, replace
 clear
 forvalues y=2008/2018 {  
    clear 
-      /* if inrange(`y', 2008, 2011) {  
+      /* /* if inrange(`y', 2008, 2011) {   */
       foreach seq in a b c d e f g h i j k l m n o p q r s t w x y z {
             capture append using $inc/inc`y'`seq'
             if _rc==0 di "file DET`y'`seq' loading complete"
@@ -50,9 +50,9 @@ forvalues y=2008/2018 {
    replace mjr_womcc = 1 if drg_cd=="470"
 
 
-   keep usrds_id clm_from mjr_womcc mjr_wmcc hcfasaf seq_key drg_cd
+   keep usrds_id clm_from mjr_womcc mjr_wmcc hcfasaf seq_keyc drg_cd
    keep if mjr_wmcc==1 | mjr_womcc==1
-   collapse (max) mjr_womcc mjr_wmcc (firstnm) drg_cd, by(usrds_id clm_from hcfasaf seq_key) fast
+   collapse (max) mjr_womcc mjr_wmcc (firstnm) drg_cd, by(usrds_id clm_from hcfasaf seq_keyc) fast
    rename clm_from clm_from_`y'
 
    compress
@@ -172,9 +172,9 @@ forvalues y=2008/2018 {
    replace hha = 1 if regexm(code,"0SSR")
    replace hha = 1 if regexm(code,"0SRS")*/
 
-   keep usrds_id clm_from hcfasaf seq_key tha tka 
+   keep usrds_id clm_from hcfasaf seq_keyc tha tka 
    keep if tha==1 | tka==1 
-   collapse (max) tha tka, by(usrds_id clm_from hcfasaf seq_key) fast
+   collapse (max) tha tka, by(usrds_id clm_from hcfasaf seq_keyc) fast
    rename clm_from clm_from_`y'
 
    compress
@@ -292,9 +292,9 @@ forvalues y=2008/2018 {
    replace hha = 1 if regexm(code,"0SSR")
    replace hha = 1 if regexm(code,"0SRS")*/
 
-   keep usrds_id clm_from hcfasaf seq_key tha tka
+   keep usrds_id clm_from hcfasaf seq_keyc tha tka
    keep if tha==1 | tka==1 
-   collapse (max) tha tka, by(usrds_id clm_from hcfasaf seq_key) fast
+   collapse (max) tha tka, by(usrds_id clm_from hcfasaf seq_keyc) fast
    rename clm_from clm_from_`y'
 
    compress
@@ -519,9 +519,9 @@ forvalues y=2008/2018 {
    replace hha = 1 if regexm(code,"0SSR")
    replace hha = 1 if regexm(code,"0SRS")*/
 
-   keep usrds_id clm_from plcsrv seq_keyc tha tka 
+   keep usrds_id clm_from plcsrv seq_keycc tha tka 
    keep if tha==1 | tka==1 
-   collapse (max) tha tka, by(usrds_id clm_from plcsrv seq_keyc) fast
+   collapse (max) tha tka, by(usrds_id clm_from plcsrv seq_keycc) fast
    rename clm_from clm_from_`y'
 
    compress
@@ -565,8 +565,8 @@ save $ortho/rev_mjr_ortho_pre_v3, replace
 
    *Casey wants to drop HHA 
    use $ortho/inc_mjr_ortho_pre_v1, clear 
-   merge 1:1 usrds_id seq_key clm_from hcfasaf using $ortho/inc_mjr_ortho_pre_v2, nogen 
-   merge 1:1 usrds_id seq_key clm_from hcfasaf using $ortho/rev_mjr_ortho_pre_v3, nogen
+   merge 1:1 usrds_id seq_keyc clm_from hcfasaf using $ortho/inc_mjr_ortho_pre_v2, nogen 
+   merge 1:1 usrds_id seq_keyc clm_from hcfasaf using $ortho/rev_mjr_ortho_pre_v3, nogen
    keep if inlist(hcfasaf, "I", "M")
    save $ortho/inc_rev_mjr_ortho, replace 
 
