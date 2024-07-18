@@ -2,12 +2,12 @@ set more off
 macro drop _all 
 
 
-global ortho /users/jdaniell/ortho
-global core /dcs01/igm/segevlab/data/usrds2020/core_hosp_tx
-global inc /dcs01/igm/segevlab/data/usrds2020/claims/inc
-global rev /dcs01/igm/segevlab/data/usrds2020/claims/rev
-global det /dcs01/igm/segevlab/data/usrds2020/claims/det
-global ps /dcs01/igm/segevlab/data/usrds2020/claims/ps
+global ortho /gpfs/home/baes03/tkrthr
+global core /gpfs/home/baes03/srtr/usrds/stata/core2023/esrd
+global inc /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/in
+global rev /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/in
+global det /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/in
+global ps /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/ps
 
 global pro "mjr_wmcc mjr_womcc tha tka"
 
@@ -19,7 +19,7 @@ global pro "mjr_wmcc mjr_womcc tha tka"
 **************************************************
 *Make sure claims happen after first txp -- tx is more complete -- 
 use $core/tx, clear 
-keep tdate trr_id usrds_id
+keep tdate trr_id_code usrds_id
 joinby usrds_id using $ortho/inc_rev_mjr_ortho, unmatched(none)
 compare tdate clm_from
 drop if tdate>=clm_from
@@ -27,7 +27,7 @@ save $ortho/inc_rev_mjr_ortho_txp, replace
 
 *PS
 use $core/tx, clear 
-keep tdate trr_id usrds_id
+keep tdate trr_id_code usrds_id
 joinby usrds_id using $ortho/ps_mjr_ortho_pre, unmatched(none)
 compare tdate clm_from
 drop if tdate>=clm_from
@@ -67,7 +67,7 @@ foreach v of varlist tha tka  {
    replace `v'=0 if min_clm_from_`v'==.
 }
 
-collapse (min) clm_from_* min_clm_from_* (max) tha tka mjr_womcc mjr_wmcc, by(usrds_id trr_id) fast
+collapse (min) clm_from_* min_clm_from_* (max) tha tka mjr_womcc mjr_wmcc, by(usrds_id trr_id_code) fast
 
 drop clm_from_tha clm_from_tka
 rename min_clm_from_tha clm_from_tha
@@ -83,7 +83,7 @@ use $core/tx, clear //trr_ki and drop multiorgan
 keep if rage>=18
 keep if year>=2008
 drop if tdate>td(31dec2018)
-drop if mi(trr_id)
+drop if mi(trr_id_code)
 joinby usrds_id using $ortho/elig_ortho_casey
 keep if inrange(tdate, begdate_new, enddate_new)
 joinby usrds_id using $ortho/ortho_claims_clean_txp, unmatched(master)
@@ -107,8 +107,8 @@ tab year_clm, m
 duplicates tag usrds_id, gen(dup)
 tab dup
 
-drop if mjr_wmcc==. & trr_id==471499
-drop if tha== . & trr_id==597381
+/* drop if mjr_wmcc==. & trr_id==471499
+drop if tha== . & trr_id==597381 */
 
 gen thk = !mi(clm_from_final)
 
