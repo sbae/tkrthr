@@ -11,7 +11,7 @@ global ps /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/ps
 
 global pro "mjr_wmcc mjr_womcc tha tka"
 
-global start_dt = td(01jan2000)
+global start_dt = td(01jan2008)
 
 capture log close //closing all logs 
 local cdat: di %tdCCYYNNDD date(c(current_date),"DMY") // converting current date as a string to numberic and storing it in a macro 
@@ -522,9 +522,9 @@ forvalues y=2008/2018 {
    replace hha = 1 if regexm(code,"0SSR")
    replace hha = 1 if regexm(code,"0SRS")*/
 
-   keep usrds_id clm_from plcsrv seq_keycc tha tka 
+   keep usrds_id clm_from plcsrv seq_keyc tha tka 
    keep if tha==1 | tka==1 
-   collapse (max) tha tka, by(usrds_id clm_from plcsrv seq_keycc) fast
+   collapse (max) tha tka, by(usrds_id clm_from plcsrv seq_keyc) fast
    rename clm_from clm_from_`y'
 
    compress
@@ -591,7 +591,7 @@ drop if clm_from<=first_se
 save $ortho/inc_rev_mjr_ortho_cut, replace 
 
 use $core/txunos_trr_ki.dta, clear
-keep tdate trr_id usrds_id
+keep tdate trr_id_code usrds_id
 joinby usrds_id using $ortho/inc_rev_mjr_ortho_cut, unmatched(using)
 compare tdate clm_from
 drop if tdate<clm_from & _merge==3 
@@ -610,7 +610,7 @@ drop if clm_from<=first_se
 save $ortho/ps_mjr_ortho_cut, replace 
 
 use $core/txunos_trr_ki.dta, clear
-keep tdate trr_id usrds_id
+keep tdate trr_id_code usrds_id
 joinby usrds_id using $ortho/ps_mjr_ortho_cut, unmatched(using)
 compare tdate clm_from
 drop if tdate<clm_from & _merge==3 
@@ -657,7 +657,7 @@ foreach v of varlist tha tka  {
    replace `v'=0 if min_clm_from_`v'==.
 }
 
-collapse (min) clm_from_* min_clm_from_* (max) tha tka mjr_womcc mjr_wmcc, by(usrds_id trr_id) fast
+collapse (min) clm_from_* min_clm_from_* (max) tha tka mjr_womcc mjr_wmcc, by(usrds_id trr_id_code) fast
 
 drop clm_from_tha clm_from_tka
 rename min_clm_from_tha clm_from_tha
