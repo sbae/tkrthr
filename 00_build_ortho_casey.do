@@ -3,11 +3,11 @@ macro drop _all
 
 
 global ortho /gpfs/home/baes03/tkrthr
-global core /gpfs/home/baes03/srtr/usrds/stata/core2023/esrd
-global inc /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/in
-global rev /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/in
-global det /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/in
-global ps /gpfs/home/baes03/srtr/usrds/stata/claims_v1/esrd/ps
+global core /gpfs/data/easelab/data/USRDS/stata/core2023/esrd
+global inc /gpfs/data/easelab/data/USRDS/stata/claims_v1/esrd/in
+global rev /gpfs/data/easelab/data/USRDS/stata/claims_v1/esrd/in
+global det /gpfs/data/easelab/data/USRDS/stata/claims_v1/esrd/in
+global ps /gpfs/data/easelab/data/USRDS/stata/claims_v1/esrd/ps
 
 global pro "mjr_wmcc mjr_womcc tha tka"
 
